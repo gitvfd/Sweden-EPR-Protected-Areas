@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html>
+<head>
+  	<title>Protected Areas in Sweden</title>
+  	<script src="http://d3js.org/d3.v3.min.js"></script>
+  	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  	<style>
+
+    body { color: #555; background: #fff; width : 350px; font: normal 13px "HelveticaNeueLT", Helvetica, Arial, sans-serif; margin: 2em; }
+    header { margin: 0 0 00px 00px; border-bottom: 1px solid #6c6c6c; width: 350px; position: relative; }
+    h1 { font-size: 14px; font-weight: bold; text-shadow: #fff 0 1px 0; margin: 0 0 0 0; padding: 0; }
+    h2 { font-size: 12px; font-weight: normal; font-style: italic; text-shadow: #fff 0 1px 0; margin: 0 0 0 0; padding: 0; }
+    small { margin: 0 0 10px 130px; color: #555; font-size: 13px; font-style: italic; top: 0.6em; position: top;}
+    a { color: #fff; }
+
+    .row {
+
+      width: 350px;
+      margin-left: 0px;
+      *zoom: 1;
+    }
+    .row:before, .row:after {
+      display: table;
+      content: "";
+    }
+    .row:after {
+      clear: both;
+    }
+  	#tooltip {
+      position: absolute;
+      width: auto;
+      height: auto;
+      padding: 10px;
+      background-color: white;
+      -webkit-border-radius: 2px;
+      -moz-border-radius: 2px;
+      border-radius: 2px;
+      -webkit-box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.4);
+      -moz-box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.4);
+      box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
+      pointer-events: none;
+      opacity: 0.90;
+    	filter:alpha(opacity=90);
+    	-moz-opacity:0.90;
+    }
+
+  	#tooltip.hidden {
+      display: none;
+    }
+
+  	#tooltip p {
+      margin: 0;
+      font-family: sans-serif;
+      font-size: 12px;
+      line-height: 13px;
+    }
+
+    .source {
+      font-family: sans-serif;
+      font-size: 11px;
+      fill: grey;
+    }
+  </style>
+</head>
+<body>
+	<div id="tooltip" class="hidden">
+	    <p><strong><span id="areaTooltip">All</span>:</strong> <br><span id="surfaceArea">XX</span></p>
+	</div>
+	<header>
+	    <center>
+	    <h1>
+	      Sweden Protected areas
+	    </h1>
+	    </center>
+  </header>
+  <br>
+</div>
+	<div class="row">
+	<center>
+    <form >
+      <label><input type="radio" name="mode" id="year1980" value="1980" checked>  1980</label>
+      <label><input type="radio" name="mode" id="year1996" value="1996" >  1996</label>
+      <label><input type="radio" name="mode" id="year2012" value="2012" >  2012</label>
+    </form>
+	</center>
+  </div >
+  <br>
+  <div class="row">
+  	<div class="span1" id="chart"></div>
+  </div>
+  <div class="source"><b>Source</b>: Swedish official statistics, Statistics Sweden (SCB)</div>
+  <script>
+    var margin = 30,
+    width = 350,
+    height = 575;
+
+    chart = d3.select("#chart").append("svg")
+               .attr("width", width)
+               .attr("height", height);
+
+
+
+    d3.csv("data.csv", function(csv) {
+    	data = csv;
+    	console.log(data);
+
+    	var rectangles = chart.selectAll("rect")
+    						.data(data)
+    						.enter()
+    						.append("rect");
+
+    	var rectanglesAttr = rectangles
+    							.attr("x",300)
+    							.attr("y",function(d,i){
+    								return 50+60*i;
+    							})
+    							.attr("height",function(d){
+    								return Math.sqrt(d.year1980)/25;
+    							})
+    							.attr("width",function(d){
+    								return Math.sqrt(d.year1980)/25;
+    							})
+    							.attr("fill",function(d){
+    								if(d.area=="Sea")
+    									return "rgb(49,133,156)";
+    								else
+    									return "rgb(102,189,58)";
+    							});
+
+    	var text = chart.selectAll("text")
+    						.data(data)
+    						.enter()
+    						.append("text")
+    						.attr("x",105)
+    						.attr("y",function(d,i){
+    								return 60+60*i;
+    							})
+    						.text(function(d) { 
+    							return d.area;
+    						});
+
+    	chart.append("rect")
+    		.attr("x",40)
+			.attr("y",7)
+			.attr("height",12.65)
+			.attr("width",12.65)
+			.attr("fill",function(d){
+				return "rgb(102,189,58)";
+			});
+    	chart.append("text")
+    		.attr("x",65)
+    		.attr("y",19.65)
+    		.text("is equivalent to 100 000 hectares");
+
+		chart.append("svg:image")
+		    .attr("xlink:href", "image/mountain.svg")
+		    .attr("width", 25)
+		    .attr("height", 25)
+		    .attr("x", 60)
+		    .attr("y",40)
+
+		chart.append("svg:image")
+		    .attr("xlink:href", "image/birch.svg")
+		    .attr("width", 25)
+		    .attr("height", 25)
+		    .attr("x", 55)
+		    .attr("y",105)
+
+		chart.append("svg:image")
+		    .attr("xlink:href", "image/coniferous.svg")
+		    .attr("width", 25)
+		    .attr("height", 25)
+		    .attr("x", 55)
+		    .attr("y",165)
+
+		chart.append("svg:image")
+		    .attr("xlink:href", "image/forest.svg")
+		    .attr("width", 30)
+		    .attr("height", 30)
+		    .attr("x", 55)
+		    .attr("y",220)
+
+		chart.append("svg:image")
+		    .attr("xlink:href", "image/lake.svg")
+		    .attr("width", 30)
+		    .attr("height", 30)
+		    .attr("x", 55)
+		    .attr("y",285);
+
+		chart.append("svg:image")
+		    .attr("xlink:href", "image/sea.svg")
+		    .attr("width", 30)
+		    .attr("height", 30)
+		    .attr("x", 55)
+		    .attr("y",340);
+
+		chart.append("svg:image")
+		    .attr("xlink:href", "image/mire.svg")
+		    .attr("width", 30)
+		    .attr("height", 30)
+		    .attr("x", 55)
+		    .attr("y",400);
+
+		chart.append("svg:image")
+		    .attr("xlink:href", "image/agricultural.svg")
+		    .attr("width", 40)
+		    .attr("height", 40)
+		    .attr("x", 50)
+		    .attr("y",455);
+
+	    chart.selectAll("rect")
+	      .on("mouseover",function(d){
+
+	      	d3.select(this).attr("fill","grey")
+	        
+	        var xPosition = parseFloat(d3.select(this).attr("x")) + document.getElementById("chart").offsetLeft +parseFloat(d3.select(this).attr("width"))+5 ;
+	        var yPosition = parseFloat(d3.select(this).attr("y")) +document.getElementById("chart").offsetTop -5;
+	                 
+	        d3.select("#tooltip")
+	                    .style("left",xPosition+"px")
+	                    .style("top", yPosition+"px") 
+	                    .select("#areaTooltip")
+	                    .text(function(){
+	                        return d.area;
+	                    });
+	        d3.select("#tooltip")
+	                    .select("#surfaceArea")
+	                    .text(function(){
+	                        return d3.format(",g")(d.year1980) + " hectares";
+	                    });
+	        
+	        d3.select("#tooltip").classed("hidden", false);
+
+
+
+	      })
+	      .on("mouseout",function(d){
+	          d3.select("#tooltip").classed("hidden", true);
+
+	      	  d3.select(this).attr("fill",function(d){
+					if(d.area=="Sea")
+						return "rgb(49,133,156)";
+					else
+						return "rgb(102,189,58)";
+    			})
+	      });
+				
+    });	
+
+
+    d3.selectAll("input").on("change", change);
+
+    function change(){
+    	var radios = document.getElementsByName('mode');
+    
+
+       	d3.csv("data.csv", function(csv) {
+       		data = csv;
+    		for (var i = 0, length = radios.length; i < length; i++) {
+
+       			if (radios[i].checked) {
+       				if(radios[i].value=="1980"){
+       					chart.selectAll("rect")
+       						.data(data)
+		    				.transition().duration(500)
+		    				.attr("height",function(d){
+    								return Math.sqrt(d.year1980)/25;
+    							})
+    						.attr("width",function(d){
+    								return Math.sqrt(d.year1980)/25;
+    							});
+       				}
+       				if(radios[i].value=="1996"){
+       					chart.selectAll("rect")
+       						.data(data)
+		    				.transition().duration(500)
+		    				.attr("height",function(d){
+    								return Math.sqrt(d.year1996)/25;
+    							})
+    						.attr("width",function(d){
+    								return Math.sqrt(d.year1996)/25;
+    							});
+       				}
+       				if(radios[i].value=="2012"){
+       					chart.selectAll("rect")
+       						.data(data)
+		    				.transition().duration(500)
+		    				.attr("height",function(d){
+    								return Math.sqrt(d.year2012)/25;
+    							})
+    						.attr("width",function(d){
+    								return Math.sqrt(d.year2012)/25;
+    							});
+       				}
+       			}
+       		}
+       	});
+    	for (var i = 0, length = radios.length; i < length; i++) {
+       		if (radios[i].checked) {
+       			if(radios[i].value=="1980"){
+				    chart.selectAll("rect")
+				      .on("mouseover",function(d){
+
+				      	d3.select(this).attr("fill","grey")
+				        
+				        var xPosition = parseFloat(d3.select(this).attr("x")) + document.getElementById("chart").offsetLeft +parseFloat(d3.select(this).attr("width"))+5 ;
+				        var yPosition = parseFloat(d3.select(this).attr("y")) +document.getElementById("chart").offsetTop -5;
+				                 
+				        d3.select("#tooltip")
+				                    .style("left",xPosition+"px")
+				                    .style("top", yPosition+"px") 
+				                    .select("#areaTooltip")
+				                    .text(function(){
+				                        return d.area;
+				                    });
+				        d3.select("#tooltip")
+				                    .select("#surfaceArea")
+				                    .text(function(){
+				                        return d3.format(",g")(d.year1980) + " hectares";
+				                    });
+
+				        d3.select("#tooltip").classed("hidden", false);
+
+
+
+				      })
+				      .on("mouseout",function(d){
+				          d3.select("#tooltip").classed("hidden", true);
+
+				      	  d3.select(this).attr("fill",function(d){
+							if(d.area=="Sea")
+								return "rgb(49,133,156)";
+							else
+								return "rgb(102,189,58)";
+						})
+				      });
+				}
+       			if(radios[i].value=="1996"){
+				    chart.selectAll("rect")
+				      .on("mouseover",function(d){
+
+				      	d3.select(this).attr("fill","grey")
+				        
+				        var xPosition = parseFloat(d3.select(this).attr("x")) + document.getElementById("chart").offsetLeft +parseFloat(d3.select(this).attr("width"))+5 ;
+				        var yPosition = parseFloat(d3.select(this).attr("y")) +document.getElementById("chart").offsetTop -5;
+				                 
+				        d3.select("#tooltip")
+				                    .style("left",xPosition+"px")
+				                    .style("top", yPosition+"px") 
+				                    .select("#areaTooltip")
+				                    .text(function(){
+				                        return d.area;
+				                    });
+				        d3.select("#tooltip")
+				                    .select("#surfaceArea")
+				                    .text(function(){
+				                        return d3.format(",g")(d.year1996) + " hectares";
+				                    });
+
+				        d3.select("#tooltip").classed("hidden", false);
+
+
+
+				      })
+				      .on("mouseout",function(d){
+				          d3.select("#tooltip").classed("hidden", true);
+
+				      	  d3.select(this).attr("fill",function(d){
+							if(d.area=="Sea")
+								return "rgb(49,133,156)";
+							else
+								return "rgb(102,189,58)";
+						})
+				      });
+				}
+       			if(radios[i].value=="2012"){
+				    chart.selectAll("rect")
+				      .on("mouseover",function(d){
+
+				      	d3.select(this).attr("fill","grey")
+				        
+				        var xPosition = parseFloat(d3.select(this).attr("x")) + document.getElementById("chart").offsetLeft +parseFloat(d3.select(this).attr("width"))+5 ;
+				        var yPosition = parseFloat(d3.select(this).attr("y")) +document.getElementById("chart").offsetTop -5;
+				                 
+				        d3.select("#tooltip")
+				                    .style("left",xPosition+"px")
+				                    .style("top", yPosition+"px") 
+				                    .select("#areaTooltip")
+				                    .text(function(){
+				                        return d.area;
+				                    });
+				        d3.select("#tooltip")
+				                    .select("#surfaceArea")
+				                    .text(function(){
+				                        return d3.format(",g")(d.year2012) + " hectares";
+				                    });
+
+				        d3.select("#tooltip").classed("hidden", false);
+
+
+
+				      })
+				      .on("mouseout",function(d){
+				          d3.select("#tooltip").classed("hidden", true);
+
+				      	  d3.select(this).attr("fill",function(d){
+							if(d.area=="Sea")
+								return "rgb(49,133,156)";
+							else
+								return "rgb(102,189,58)";
+    						})
+				      });
+				}
+			}
+		}   
+    };
+  </script>
+<body>  
